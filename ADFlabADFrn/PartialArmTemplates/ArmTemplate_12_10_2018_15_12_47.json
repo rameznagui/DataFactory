@@ -1,0 +1,170 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "ADFlabADFrn"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/S3 to Blob Copy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Data1",
+						"type": "Copy",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "FileSystemSource",
+								"recursive": true
+							},
+							"sink": {
+								"type": "BlobSink"
+							},
+							"enableStaging": false,
+							"dataIntegrationUnits": 0,
+							"translator": {
+								"type": "TabularTranslator",
+								"columnMappings": {
+									"N-Number": "N-Number",
+									"Serial Number": "Serial Number",
+									"MFR MDL Code": "MFR MDL Code",
+									"Eng MFR Code": "Eng MFR Code",
+									"Year MFR": "Year MFR",
+									"Type Registrant": "Type Registrant",
+									"Name": "Name",
+									"Street 1": "Street 1",
+									"Street2": "Street2",
+									"City": "City",
+									"State": "State",
+									"ZIP": "ZIP",
+									"Region": "Region",
+									"County ": "County ",
+									"Country": "Country",
+									"Last Activity Date": "Last Activity Date",
+									"Cert Issue Date": "Cert Issue Date",
+									"Certification Requested ": "Certification Requested ",
+									"Type Aircraft": "Type Aircraft",
+									"Type Engine": "Type Engine",
+									"Status Code": "Status Code",
+									"Mode S Code": "Mode S Code",
+									"Fractional  Ownership": "Fractional  Ownership",
+									"Airworthiness Date": "Airworthiness Date",
+									"Other Name 1": "Other Name 1",
+									"Other Name 2": "Other Name 2",
+									"Other Name 3": "Other Name 3",
+									"Other Name 4": "Other Name 4",
+									"Other Name 5": "Other Name 5",
+									"Expiration Date": "Expiration Date",
+									"Unique ID": "Unique ID",
+									"Kit MFR Code": "Kit MFR Code",
+									"Kit Model": "Kit Model",
+									"Mose S Code Hex": "Mose S Code Hex"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DatasetMasterFAA",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureBlobMasterFAA",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "Send Success Mail",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy Data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"url": "https://prod-45.westeurope.logic.azure.com:443/workflows/9ae85048f5424d21bbae7ef5250a48aa",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "Application/json"
+							},
+							"body": {
+								"dataFactoryName": "@{pipeline().DataFactory}",
+								"successtype": "Succeeded",
+								"message": "@{activity('S3 to Azure Blob').output.dataWritten}",
+								"pipelineName": "@{pipeline().Pipeline}",
+								"recipient": "@{pipeline().parameters.recipient}"
+							}
+						}
+					},
+					{
+						"name": "Send Fail Mail",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy Data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"url": "https://prod-45.westeurope.logic.azure.com:443/workflows/9ae85048f5424d21bbae7ef5250a48aa",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "Application/json"
+							},
+							"body": {
+								"dataFactoryName": "@{pipeline().DataFactory}",
+								"successtype": "Failed",
+								"message": "@{activity('S3 to Azure Blob').error.message}",
+								"pipelineName": "@{pipeline().Pipeline}",
+								"recipient": "@{pipeline().parameters.recipient}"
+							}
+						}
+					}
+				],
+				"parameters": {
+					"recipient": {
+						"type": "String",
+						"defaultValue": "v-ramezn@microsoft.com"
+					}
+				}
+			}
+		}
+	]
+}
