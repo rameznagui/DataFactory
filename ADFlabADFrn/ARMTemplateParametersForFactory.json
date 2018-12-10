@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADFlabADFrn"
+		},
+		"AzStorageStaging_connectionString": {
+			"value": ""
+		},
+		"FileServer_password": {
+			"value": ""
+		},
+		"AzureBlobMasterFAA_properties_typeProperties_fileName": {
+			"value": "FAAmaster.txt"
+		},
+		"AzureBlobMasterFAA_properties_typeProperties_folderPath": {
+			"value": "input/FAAmaster"
+		},
+		"DatasetMasterFAA_properties_typeProperties_fileName": {
+			"value": "MASTER.txt"
+		},
+		"DatasetMasterFAA_properties_typeProperties_folderPath": {
+			"value": ""
+		},
+		"FileServer_properties_typeProperties_userId": {
+			"value": "Azure\\adfsource"
+		}
+	}
+}

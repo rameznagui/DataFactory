@@ -1,0 +1,501 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "ADFlabADFrn"
+		},
+		"AzStorageStaging_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzStorageStaging'"
+		},
+		"FileServer_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'FileServer'"
+		},
+		"AzureBlobMasterFAA_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "FAAmaster.txt"
+		},
+		"AzureBlobMasterFAA_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "input/FAAmaster"
+		},
+		"DatasetMasterFAA_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "MASTER.txt"
+		},
+		"DatasetMasterFAA_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"FileServer_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "Azure\\adfsource"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/S3 to Blob Copy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "FileSystemSource",
+								"recursive": true
+							},
+							"sink": {
+								"type": "BlobSink"
+							},
+							"enableStaging": false,
+							"dataIntegrationUnits": 0,
+							"translator": {
+								"type": "TabularTranslator",
+								"columnMappings": {
+									"N-Number": "N-Number",
+									"Serial Number": "Serial Number",
+									"MFR MDL Code": "MFR MDL Code",
+									"Eng MFR Code": "Eng MFR Code",
+									"Year MFR": "Year MFR",
+									"Type Registrant": "Type Registrant",
+									"Name": "Name",
+									"Street 1": "Street 1",
+									"Street2": "Street2",
+									"City": "City",
+									"State": "State",
+									"ZIP": "ZIP",
+									"Region": "Region",
+									"County ": "County ",
+									"Country": "Country",
+									"Last Activity Date": "Last Activity Date",
+									"Cert Issue Date": "Cert Issue Date",
+									"Certification Requested ": "Certification Requested ",
+									"Type Aircraft": "Type Aircraft",
+									"Type Engine": "Type Engine",
+									"Status Code": "Status Code",
+									"Mode S Code": "Mode S Code",
+									"Fractional  Ownership": "Fractional  Ownership",
+									"Airworthiness Date": "Airworthiness Date",
+									"Other Name 1": "Other Name 1",
+									"Other Name 2": "Other Name 2",
+									"Other Name 3": "Other Name 3",
+									"Other Name 4": "Other Name 4",
+									"Other Name 5": "Other Name 5",
+									"Expiration Date": "Expiration Date",
+									"Unique ID": "Unique ID",
+									"Kit MFR Code": "Kit MFR Code",
+									"Kit Model": "Kit Model",
+									"Mose S Code Hex": "Mose S Code Hex"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DatasetMasterFAA",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureBlobMasterFAA",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DatasetMasterFAA')]",
+				"[concat(variables('factoryId'), '/datasets/AzureBlobMasterFAA')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobMasterFAA')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzStorageStaging",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"structure": [
+					{
+						"name": "N-Number",
+						"type": "String"
+					},
+					{
+						"name": "Serial Number",
+						"type": "String"
+					},
+					{
+						"name": "MFR MDL Code",
+						"type": "String"
+					},
+					{
+						"name": "Eng MFR Code",
+						"type": "String"
+					},
+					{
+						"name": "Year MFR",
+						"type": "String"
+					},
+					{
+						"name": "Type Registrant",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Street 1",
+						"type": "String"
+					},
+					{
+						"name": "Street2",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "ZIP",
+						"type": "String"
+					},
+					{
+						"name": "Region",
+						"type": "String"
+					},
+					{
+						"name": "County ",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "Last Activity Date",
+						"type": "String"
+					},
+					{
+						"name": "Cert Issue Date",
+						"type": "String"
+					},
+					{
+						"name": "Certification Requested ",
+						"type": "String"
+					},
+					{
+						"name": "Type Aircraft",
+						"type": "String"
+					},
+					{
+						"name": "Type Engine",
+						"type": "String"
+					},
+					{
+						"name": "Status Code",
+						"type": "String"
+					},
+					{
+						"name": "Mode S Code",
+						"type": "String"
+					},
+					{
+						"name": "Fractional  Ownership",
+						"type": "String"
+					},
+					{
+						"name": "Airworthiness Date",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 1",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 2",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 3",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 4",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 5",
+						"type": "String"
+					},
+					{
+						"name": "Expiration Date",
+						"type": "String"
+					},
+					{
+						"name": "Unique ID",
+						"type": "String"
+					},
+					{
+						"name": "Kit MFR Code",
+						"type": "String"
+					},
+					{
+						"name": "Kit Model",
+						"type": "String"
+					},
+					{
+						"name": "Mose S Code Hex",
+						"type": "String"
+					}
+				],
+				"typeProperties": {
+					"format": {
+						"type": "TextFormat",
+						"columnDelimiter": ",",
+						"rowDelimiter": "",
+						"nullValue": "\\N",
+						"treatEmptyAsNull": true,
+						"skipLineCount": 0,
+						"firstRowAsHeader": true
+					},
+					"fileName": "[parameters('AzureBlobMasterFAA_properties_typeProperties_fileName')]",
+					"folderPath": "[parameters('AzureBlobMasterFAA_properties_typeProperties_folderPath')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzStorageStaging')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DatasetMasterFAA')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "FileServer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "FileShare",
+				"structure": [
+					{
+						"name": "N-Number",
+						"type": "String"
+					},
+					{
+						"name": "Serial Number",
+						"type": "String"
+					},
+					{
+						"name": "MFR MDL Code",
+						"type": "String"
+					},
+					{
+						"name": "Eng MFR Code",
+						"type": "String"
+					},
+					{
+						"name": "Year MFR",
+						"type": "String"
+					},
+					{
+						"name": "Type Registrant",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Street 1",
+						"type": "String"
+					},
+					{
+						"name": "Street2",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "ZIP",
+						"type": "String"
+					},
+					{
+						"name": "Region",
+						"type": "String"
+					},
+					{
+						"name": "County ",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					},
+					{
+						"name": "Last Activity Date",
+						"type": "String"
+					},
+					{
+						"name": "Cert Issue Date",
+						"type": "String"
+					},
+					{
+						"name": "Certification Requested ",
+						"type": "String"
+					},
+					{
+						"name": "Type Aircraft",
+						"type": "String"
+					},
+					{
+						"name": "Type Engine",
+						"type": "String"
+					},
+					{
+						"name": "Status Code",
+						"type": "String"
+					},
+					{
+						"name": "Mode S Code",
+						"type": "String"
+					},
+					{
+						"name": "Fractional  Ownership",
+						"type": "String"
+					},
+					{
+						"name": "Airworthiness Date",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 1",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 2",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 3",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 4",
+						"type": "String"
+					},
+					{
+						"name": "Other Name 5",
+						"type": "String"
+					},
+					{
+						"name": "Expiration Date",
+						"type": "String"
+					},
+					{
+						"name": "Unique ID",
+						"type": "String"
+					},
+					{
+						"name": "Kit MFR Code",
+						"type": "String"
+					},
+					{
+						"name": "Kit Model",
+						"type": "String"
+					},
+					{
+						"name": "Mose S Code Hex",
+						"type": "String"
+					}
+				],
+				"typeProperties": {
+					"format": {
+						"type": "TextFormat",
+						"columnDelimiter": ",",
+						"rowDelimiter": "",
+						"quoteChar": "\"",
+						"nullValue": "\\N",
+						"treatEmptyAsNull": true,
+						"skipLineCount": 0,
+						"firstRowAsHeader": true
+					},
+					"fileName": "[parameters('DatasetMasterFAA_properties_typeProperties_fileName')]",
+					"folderPath": "[parameters('DatasetMasterFAA_properties_typeProperties_folderPath')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FileServer')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzStorageStaging')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzStorageStaging_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FileServer')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "\\\\adfsource.file.core.windows.net\\adfsourceshare",
+					"userId": "[parameters('FileServer_properties_typeProperties_userId')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('FileServer_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
